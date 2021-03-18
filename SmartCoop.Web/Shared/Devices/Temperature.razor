@@ -1,0 +1,6 @@
+@using SmartCoop.Core.Sensors.Temperature
+<h3>@Device.Name</h3>
+
+<div>
+    @Device.Temp&deg;@(Device.UnitType == TempType.Celcius ? "C" : "F")
+</div>

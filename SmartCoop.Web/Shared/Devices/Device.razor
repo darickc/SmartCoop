@@ -1,0 +1,22 @@
+@using SmartCoop.Core.Devices
+@using SmartCoop.Core.Sensors
+@using SmartCoop.Core.Sensors.Temperature
+@if (Item is IDoor door)
+{
+    <Door Device="door"></Door>
+}
+
+@if (Item is ITemperature temp)
+{
+    <Temperature Device="temp"></Temperature>
+}
+
+@if (Item is ISwitch device)
+{
+    <Switch Device="device"></Switch>
+}
+
+@if (Item is ILevel level)
+{
+    <Level Device="level"></Level>
+}

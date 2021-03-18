@@ -1,7 +1,9 @@
 @page "/"
 
-<h1>Hello, world!</h1>
 
-Welcome to your new app.
+<h3>Coop</h3>
 
-<SurveyPrompt Title="How is Blazor working for you?" />
+@foreach (var device in Coop.Devices)
+{
+    <Device Item="device"></Device>
+}
