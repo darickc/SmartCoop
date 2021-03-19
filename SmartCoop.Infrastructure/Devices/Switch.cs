@@ -1,7 +1,7 @@
-﻿using System;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Device.Gpio;
 using System.Runtime.CompilerServices;
+using Newtonsoft.Json;
 using SmartCoop.Core.Devices;
 using SmartCoop.Infrastructure.Annotations;
 
@@ -12,7 +12,6 @@ namespace SmartCoop.Infrastructure.Devices
         private GpioController _gpioController;
         private bool _on;
         private string _name;
-        private int _pin;
 
         public string Name
         {
@@ -25,6 +24,7 @@ namespace SmartCoop.Infrastructure.Devices
             }
         }
 
+        [JsonIgnore]
         public bool On
         {
             get => _on;
@@ -36,16 +36,7 @@ namespace SmartCoop.Infrastructure.Devices
             }
         }
 
-        public int Pin
-        {
-            get => _pin;
-            set
-            {
-                if (value == _pin) return;
-                _pin = value;
-                OnPropertyChanged();
-            }
-        }
+        public int Pin { get; set; }
 
         public void Initialize()
         {
@@ -80,7 +71,7 @@ namespace SmartCoop.Infrastructure.Devices
             _gpioController?.Dispose();
         }
 
-        public event PropertyChangedEventHandler? PropertyChanged;
+        public event PropertyChangedEventHandler PropertyChanged;
 
         [NotifyPropertyChangedInvocator]
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)

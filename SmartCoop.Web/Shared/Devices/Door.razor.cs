@@ -1,24 +1,13 @@
-﻿using System;
-using System.ComponentModel;
-using Microsoft.AspNetCore.Components;
+﻿using Microsoft.AspNetCore.Components;
 using SmartCoop.Core.Devices;
 
 namespace SmartCoop.Web.Shared.Devices
 {
-    public partial class Door : IDisposable
+    public partial class Door
     {
         [Parameter] public IDoor Device { get; set; }
-
-        protected override void OnInitialized()
-        {
-            Device.PropertyChanged += DeviceOnPropertyChanged;
-        }
-
-        private void DeviceOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
-        {
-            StateHasChanged();
-        }
-
+        [Parameter] public bool Editing { get; set; }
+        
         public void Open()
         {
             Device.Open();
@@ -29,9 +18,5 @@ namespace SmartCoop.Web.Shared.Devices
             Device.Close();
         }
 
-        public void Dispose()
-        {
-            Device.PropertyChanged -= DeviceOnPropertyChanged;
-        }
     }
 }

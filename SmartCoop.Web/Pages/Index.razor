@@ -3,7 +3,40 @@
 
 <h3>Coop</h3>
 
-@foreach (var device in Coop.Devices)
+@if (Editing)
 {
-    <Device Item="device"></Device>
+    <MatButton Raised="true" OnClick="OpenAddDevice">Add</MatButton>
+
+    @foreach (var device in TempCoop.Devices)
+    {
+        <Device Item="device" Editing="Editing" OnRemove="Remove"></Device>
+    }
+    <div>
+        <MatButton Raised="true" OnClick="Save">Save</MatButton>
+        <MatButton Raised="true" OnClick="Cancel">Cancel</MatButton>
+    </div>
 }
+else
+{
+    <MatButton Raised="true" OnClick="Edit">Edit</MatButton>
+    @foreach (var device in Coop.Devices)
+    {
+        <Device Item="device"></Device>
+    }
+}
+
+<MatDialog @bind-IsOpen="@DialogOpen">
+    <MatDialogTitle>Add Device</MatDialogTitle>
+    <MatDialogContent>
+        <MatSelect TValue="string" Label="Device Type" @bind-Value="DeviceType">
+            @foreach (var device in AvailaibleDevices)
+            {
+                <MatOption Value="device.GetType().FullName">@device.GetType().Name</MatOption>
+            }
+        </MatSelect>
+    </MatDialogContent>
+    <MatDialogActions>
+        <MatButton OnClick="@AddDevice">Add</MatButton>
+        <MatButton OnClick="@(e => { DialogOpen = false; })">Cancel</MatButton>
+    </MatDialogActions>
+</MatDialog>

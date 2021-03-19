@@ -6,5 +6,6 @@ namespace SmartCoop.Web.Shared.Devices
     public partial class Temperature
     {
         [Parameter] public ITemperature Device { get; set; }
+        [Parameter] public bool Editing { get; set; }
     }
 }

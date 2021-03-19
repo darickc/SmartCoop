@@ -1,13 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Threading.Tasks;
 using SmartCoop.Core.Devices;
-using SmartCoop.Core.Sensors;
 
 namespace SmartCoop.Core.Coop
 {
-    public interface ICoop : IDisposable
+    public interface ICoop : IDisposable, INotifyPropertyChanged
     {
-        List<IDevice> Devices { get; }
+        List<IDevice> Devices { get; set; }
         void Initialize();
+        Task Save();
+        void Load();
     }
 }

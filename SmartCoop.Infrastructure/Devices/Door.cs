@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Device.Gpio;
 using System.Runtime.CompilerServices;
+using Newtonsoft.Json;
 using SmartCoop.Core.Devices;
 using SmartCoop.Infrastructure.Annotations;
 
@@ -9,9 +10,33 @@ namespace SmartCoop.Infrastructure.Devices
     public class Door : IDoor
     {
         private GpioController _gpioController;
+        private bool _isOpen;
+        private bool _isClosed;
 
-        public bool IsOpen { get; private set; }
-        public bool IsClosed { get; private set; }
+        [JsonIgnore]
+        public bool IsOpen
+        {
+            get => _isOpen;
+            private set
+            {
+                if (value.Equals(_isOpen)) return;
+                _isOpen = value;
+                OnPropertyChanged();
+            }
+        }
+
+        [JsonIgnore]
+        public bool IsClosed
+        {
+            get => _isClosed;
+            private set
+            {
+                if (value.Equals(_isClosed)) return;
+                _isClosed = value;
+                OnPropertyChanged();
+            }
+        }
+
         public int OpenPinNumber { get; set; }
         public int ClosedPinNumber { get; set; }
         public string Name { get; set; }
@@ -61,7 +86,7 @@ namespace SmartCoop.Infrastructure.Devices
             _gpioController?.Dispose();
         }
 
-        public event PropertyChangedEventHandler? PropertyChanged;
+        public event PropertyChangedEventHandler PropertyChanged;
 
         [NotifyPropertyChangedInvocator]
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)

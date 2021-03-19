@@ -15,11 +15,12 @@ namespace SmartCoop.Web.Services
             _serviceScopeFactory = serviceScopeFactory;
         }
 
-        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+        protected override Task ExecuteAsync(CancellationToken stoppingToken)
         {
             using var scope = _serviceScopeFactory.CreateScope();
             var coop = scope.ServiceProvider.GetRequiredService<ICoop>();
             coop.Initialize();
+            return Task.CompletedTask;
         }
     }
 }

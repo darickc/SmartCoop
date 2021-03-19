@@ -1,8 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using SmartCoop.Core.Coop;
 using SmartCoop.Core.Devices;
-using SmartCoop.Core.Sensors;
-using SmartCoop.Core.Sensors.Temperature;
 using SmartCoop.Infrastructure.Devices;
 using SmartCoop.Infrastructure.Sensors;
 
@@ -15,11 +12,11 @@ namespace SmartCoop.Infrastructure
             services.AddAutoMapper(typeof(Core.DependencyInjection).Assembly,  typeof(DependencyInjection).Assembly);
 
             // services.AddSingleton<ICoop, Coop.Coop>();
-            services.AddTransient<IDoor, Door>();
-            services.AddTransient<ISwitch, Switch>();
-            services.AddTransient<ITemperature, Temperature>();
-            services.AddTransient<ILevel, Level>();
-            services.AddTransient<IPhotoCell, PhotoCell>();
+            services.AddTransient<IDevice, Door>();
+            services.AddTransient<IDevice, Switch>();
+            services.AddTransient<IDevice, Temperature>();
+            services.AddTransient<IDevice, Level>();
+            services.AddTransient<IDevice, PhotoCell>();
 
             return services;
         }

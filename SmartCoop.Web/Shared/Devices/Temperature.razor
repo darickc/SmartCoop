@@ -1,6 +1,19 @@
 @using SmartCoop.Core.Sensors.Temperature
-<h3>@Device.Name</h3>
+@if (Editing)
+{
+    <div class="bold">Temperature</div>
+    <div>
+        <MatTextField @bind-Value="@Device.Name" Label="Name" Required="true"></MatTextField>
+        <MatTextField @bind-Value="@Device.BusId" Label="Bus Id" Required="true"></MatTextField>
+        <MatTextField @bind-Value="@Device.DevId" Label="Dev Id" Required="true"></MatTextField>
+        <MatTextField @bind-Value="@Device.ReadFrequency" Label="Read Frequency" Required="true"></MatTextField>
+        
+    </div>
+}
+else
+{
+    <div>
+        @Device.Temp&deg;@(Device.UnitType == TempType.Celcius ? "C" : "F")
+    </div>
 
-<div>
-    @Device.Temp&deg;@(Device.UnitType == TempType.Celcius ? "C" : "F")
-</div>
+}

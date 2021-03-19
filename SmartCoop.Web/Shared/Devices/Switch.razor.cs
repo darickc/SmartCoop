@@ -7,17 +7,8 @@ namespace SmartCoop.Web.Shared.Devices
     public partial class Switch
     {
         [Parameter] public ISwitch Device { get; set; }
-
-        protected override void OnInitialized()
-        {
-            Device.PropertyChanged += DeviceOnPropertyChanged;
-        }
-
-        private void DeviceOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
-        {
-            InvokeAsync(StateHasChanged);
-        }
-
+        [Parameter] public bool Editing { get; set; }
+        
         public void TurnOn()
         {
             Device.TurnOn();
@@ -27,10 +18,6 @@ namespace SmartCoop.Web.Shared.Devices
         {
             Device.TurnOff();
         }
-
-        public void Dispose()
-        {
-            Device.PropertyChanged -= DeviceOnPropertyChanged;
-        }
+        
     }
 }

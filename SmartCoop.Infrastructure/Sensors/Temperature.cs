@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using Newtonsoft.Json;
 using System.Threading.Tasks;
 using System.Timers;
 using Iot.Device.OneWire;
@@ -13,8 +14,21 @@ namespace SmartCoop.Infrastructure.Sensors
     {
         private OneWireThermometerDevice _dev;
         private Timer _timer;
+        private double _temp;
         public string Name { get; set; }
-        public double Temp { get; private set; }
+
+        [JsonIgnore]
+        public double Temp
+        {
+            get => _temp;
+            private set
+            {
+                if (value.Equals(_temp)) return;
+                _temp = value;
+                OnPropertyChanged();
+            }
+        }
+
         public string BusId { get; set; }
         public string DevId { get; set; }
         public int ReadFrequency { get; set; } = 10;
@@ -64,7 +78,7 @@ namespace SmartCoop.Infrastructure.Sensors
         // Make sure you can access the bus device before requesting a device scan (or run using sudo)
         // $ sudo chmod a+rw /sys/bus/w1/devices/w1_bus_master1/w1_master_*
 
-        public event PropertyChangedEventHandler? PropertyChanged;
+        public event PropertyChangedEventHandler PropertyChanged;
 
         [NotifyPropertyChangedInvocator]
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)

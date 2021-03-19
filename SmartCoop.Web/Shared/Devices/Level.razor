@@ -1,2 +1,13 @@
-<h3>@Device.Name</h3>
-<div>@Device.Percent%</div>
+@if (Editing)
+{
+    <div class="bold">Level</div>
+    <div>
+        <MatTextField @bind-Value="@Device.Name" Label="Name" Required="true"></MatTextField>
+        <MatTextField @bind-Value="@Device.TriggerPin" Label="Trigger Pin Number" Required="true" Type="number" min="1" max="30"></MatTextField>
+        <MatTextField @bind-Value="@Device.EchoPin" Label="Echo Pin Number" Required="true" Type="number" min="1" max="30"></MatTextField>
+    </div>
+}
+else
+{
+    <div>@Device.Percent%</div>
+}

@@ -6,8 +6,8 @@ namespace SmartCoop.Core.Devices
     {
         bool IsOpen { get; }
         bool IsClosed { get; }
-        int OpenPinNumber { get; }
-        int ClosedPinNumber { get; }
+        int OpenPinNumber { get; set; }
+        int ClosedPinNumber { get; set; }
         void Open();
         void Close();
     }

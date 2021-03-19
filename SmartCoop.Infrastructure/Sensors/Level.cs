@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using Newtonsoft.Json;
 using System.Timers;
 using Iot.Device.Hcsr04;
 using SmartCoop.Core.Sensors;
@@ -12,9 +13,21 @@ namespace SmartCoop.Infrastructure.Sensors
     {
         private Hcsr04 _sonar;
         private Timer _timer;
+        private int _percent;
 
         public string Name { get; set; }
-        public int Percent { get; private set; }
+
+        [JsonIgnore]
+        public int Percent
+        {
+            get => _percent;
+            private set {
+                if (value.Equals(_percent)) return;
+                _percent = value;
+                OnPropertyChanged();
+            }
+        }
+
         public int TriggerPin { get; set; }
         public int EchoPin { get; set; }
         public int ReadFrequency { get; set; } = 10;
@@ -85,7 +98,7 @@ namespace SmartCoop.Infrastructure.Sensors
             HighValue = distance;
         }
 
-        public event PropertyChangedEventHandler? PropertyChanged;
+        public event PropertyChangedEventHandler PropertyChanged;
 
         [NotifyPropertyChangedInvocator]
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
