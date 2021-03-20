@@ -363,3 +363,4 @@ MigrationBackup/
 FodyWeavers.xsd
 
 SmartCoop.Web/coop.json
+SmartCoop.Web/appsettings.Production.json

@@ -3,6 +3,7 @@ using System.Device.Gpio;
 using System.Runtime.CompilerServices;
 using Newtonsoft.Json;
 using SmartCoop.Core.Devices;
+using SmartCoop.Core.Services;
 using SmartCoop.Infrastructure.Annotations;
 
 namespace SmartCoop.Infrastructure.Devices
@@ -10,6 +11,7 @@ namespace SmartCoop.Infrastructure.Devices
     public class Door : IDoor
     {
         private GpioController _gpioController;
+        private IMessageService _messageService;
         private bool _isOpen;
         private bool _isClosed;
 
@@ -41,8 +43,9 @@ namespace SmartCoop.Infrastructure.Devices
         public int ClosedPinNumber { get; set; }
         public string Name { get; set; }
 
-        public void Initialize()
+        public void Initialize(IMessageService messageService)
         {
+            _messageService = messageService;
             Dispose();
             try
             {
@@ -57,15 +60,30 @@ namespace SmartCoop.Infrastructure.Devices
             }
         }
 
+        public void HandleMessage(string message)
+        {
+            switch (message)
+            {
+                case "open":
+                    Open();
+                    break;
+                case "close":
+                    Close();
+                    break;
+            }
+        }
+
         private void Callback(object sender, PinValueChangedEventArgs pinvaluechangedeventargs)
         {
             if (pinvaluechangedeventargs.PinNumber == OpenPinNumber)
             {
                 IsOpen = pinvaluechangedeventargs.ChangeType == PinEventTypes.Rising;
+                _messageService.SendMessage(Name, "Opened");
             }
             if (pinvaluechangedeventargs.PinNumber == ClosedPinNumber)
             {
                 IsClosed = pinvaluechangedeventargs.ChangeType == PinEventTypes.Rising;
+                _messageService.SendMessage(Name, "Closed");
             }
         }
 

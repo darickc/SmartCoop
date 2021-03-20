@@ -3,6 +3,7 @@ using System.Device.Gpio;
 using System.Runtime.CompilerServices;
 using Newtonsoft.Json;
 using SmartCoop.Core.Devices;
+using SmartCoop.Core.Services;
 using SmartCoop.Infrastructure.Annotations;
 
 namespace SmartCoop.Infrastructure.Devices
@@ -10,6 +11,7 @@ namespace SmartCoop.Infrastructure.Devices
     public class Switch : ISwitch
     {
         private GpioController _gpioController;
+        private IMessageService _messageService;
         private bool _on;
         private string _name;
 
@@ -38,8 +40,9 @@ namespace SmartCoop.Infrastructure.Devices
 
         public int Pin { get; set; }
 
-        public void Initialize()
+        public void Initialize(IMessageService messageService)
         {
+            _messageService = messageService;
             Dispose();
             try
             {
@@ -49,6 +52,11 @@ namespace SmartCoop.Infrastructure.Devices
             catch 
             {
             }
+        }
+
+        public void HandleMessage(string message)
+        {
+            throw new System.NotImplementedException();
         }
 
         public void TurnOn()

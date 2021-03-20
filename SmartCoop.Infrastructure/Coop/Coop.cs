@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using SmartCoop.Core.Coop;
 using SmartCoop.Core.Devices;
+using SmartCoop.Core.Services;
 using SmartCoop.Infrastructure.Annotations;
 
 namespace SmartCoop.Infrastructure.Coop
@@ -14,6 +15,7 @@ namespace SmartCoop.Infrastructure.Coop
     {
         private const string FileName = "coop.json";
         private List<IDevice> _devices = new();
+        private IMessageService _messageService;
         public event PropertyChangedEventHandler PropertyChanged;
 
         public List<IDevice> Devices
@@ -27,11 +29,15 @@ namespace SmartCoop.Infrastructure.Coop
             }
         }
 
-        public void Initialize()
+        public void Initialize(IMessageService messageService = null)
         {
+            if (messageService != null)
+            {
+                _messageService = messageService;
+            }
             foreach (var device in Devices)
             {
-                device.Initialize();
+                device.Initialize(_messageService);
             }
         }
 

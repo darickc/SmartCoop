@@ -5,6 +5,7 @@ using Newtonsoft.Json;
 using System.Timers;
 using Iot.Device.Hcsr04;
 using SmartCoop.Core.Sensors;
+using SmartCoop.Core.Services;
 using SmartCoop.Infrastructure.Annotations;
 
 namespace SmartCoop.Infrastructure.Sensors
@@ -14,6 +15,7 @@ namespace SmartCoop.Infrastructure.Sensors
         private Hcsr04 _sonar;
         private Timer _timer;
         private int _percent;
+        private IMessageService _messageService;
 
         public string Name { get; set; }
 
@@ -40,8 +42,9 @@ namespace SmartCoop.Infrastructure.Sensors
             _sonar?.Dispose();
         }
 
-        public void Initialize()
+        public void Initialize(IMessageService messageService)
         {
+            _messageService = messageService;
             Dispose();
             try
             {
@@ -53,6 +56,11 @@ namespace SmartCoop.Infrastructure.Sensors
             catch
             {
             }
+        }
+
+        public void HandleMessage(string message)
+        {
+            throw new NotImplementedException();
         }
 
         private void GetPercent()

@@ -1,10 +1,9 @@
-﻿using MatBlazor;
+﻿using System.Linq;
+using MatBlazor;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using SmartCoop.Core;
-using SmartCoop.Core.Coop;
 using SmartCoop.Infrastructure;
-using SmartCoop.Infrastructure.Coop;
 using SmartCoop.Web.Services;
 
 namespace SmartCoop.Web.Common
@@ -13,12 +12,10 @@ namespace SmartCoop.Web.Common
     {
         public static void ConfigureWeb(this IServiceCollection services, IConfiguration config)
         {
-            
-            ICoop coop = new Coop();
-            coop.Load();
-            services.AddSingleton(coop);
+            Settings settings = new Settings();
+            config.GetSection("settings").Bind(settings);
             // get all interfaces settings implements and put into DI
-            // typeof(Coop).GetInterfaces().ToList().ForEach(t => services.AddSingleton(t, settings));
+            typeof(Settings).GetInterfaces().ToList().ForEach(t => services.AddSingleton(t, settings));
 
             services.AddMatBlazor();
             services.AddApplicationCore();

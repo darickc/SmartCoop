@@ -2,6 +2,7 @@
 using System.Runtime.CompilerServices;
 using Newtonsoft.Json;
 using SmartCoop.Core.Sensors;
+using SmartCoop.Core.Services;
 using SmartCoop.Infrastructure.Annotations;
 
 namespace SmartCoop.Infrastructure.Sensors
@@ -9,6 +10,7 @@ namespace SmartCoop.Infrastructure.Sensors
     public class PhotoCell : IPhotoCell
     {
         private bool _on;
+        private IMessageService _messageService;
         public string Name { get; set; }
 
         [JsonIgnore]
@@ -27,8 +29,14 @@ namespace SmartCoop.Infrastructure.Sensors
         {
         }
 
-        public void Initialize()
+        public void Initialize(IMessageService messageService)
         {
+            _messageService = messageService;
+        }
+
+        public void HandleMessage(string message)
+        {
+            throw new System.NotImplementedException();
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Timers;
 using Iot.Device.OneWire;
 using SmartCoop.Core.Sensors.Temperature;
+using SmartCoop.Core.Services;
 using SmartCoop.Infrastructure.Annotations;
 
 namespace SmartCoop.Infrastructure.Sensors
@@ -15,6 +16,8 @@ namespace SmartCoop.Infrastructure.Sensors
         private OneWireThermometerDevice _dev;
         private Timer _timer;
         private double _temp;
+        private IOneWire _oneWireDevice;
+        private IMessageService _messageService;
         public string Name { get; set; }
 
         [JsonIgnore]
@@ -29,8 +32,17 @@ namespace SmartCoop.Infrastructure.Sensors
             }
         }
 
-        public string BusId { get; set; }
-        public string DevId { get; set; }
+        public IOneWire OneWireDevice
+        {
+            get => _oneWireDevice;
+            set
+            {
+                if (value.Equals(_oneWireDevice)) return;
+                _oneWireDevice = value;
+                OnPropertyChanged();
+            }
+        }
+
         public int ReadFrequency { get; set; } = 10;
         public TempType UnitType { get; set; }
 
@@ -39,11 +51,12 @@ namespace SmartCoop.Infrastructure.Sensors
             _timer?.Dispose();
         }
 
-        public void Initialize()
+        public void Initialize(IMessageService messageService)
         {
+            _messageService = messageService;
             try
             {
-                _dev = new(BusId, DevId);
+                _dev = new(OneWireDevice.BusId, OneWireDevice.DevId);
                 _timer = new Timer(TimeSpan.FromSeconds(ReadFrequency).TotalMilliseconds);
                 _timer.Elapsed += async (sender, args) => await GetTemperature();
                 _timer.Start();
@@ -54,13 +67,26 @@ namespace SmartCoop.Infrastructure.Sensors
             }
         }
 
+        public void HandleMessage(string message)
+        {
+            throw new NotImplementedException();
+        }
+
         private async Task GetTemperature()
         {
-            var temp = await ReadTemperature();
-            if (Math.Abs(temp - Temp) > .1)
+
+            try
             {
-                Temp = temp;
-                // todo send notification
+                var temp = await ReadTemperature();
+                if (Math.Abs(temp - Temp) > .1)
+                {
+                    Temp = temp;
+                    // todo send notification
+                }
+            }
+            catch
+            {
+                _timer.Stop();
             }
         }
 

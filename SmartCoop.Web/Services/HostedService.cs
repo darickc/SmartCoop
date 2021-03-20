@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using SmartCoop.Core.Coop;
+using SmartCoop.Core.Services;
 
 namespace SmartCoop.Web.Services
 {
@@ -15,12 +16,14 @@ namespace SmartCoop.Web.Services
             _serviceScopeFactory = serviceScopeFactory;
         }
 
-        protected override Task ExecuteAsync(CancellationToken stoppingToken)
+        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             using var scope = _serviceScopeFactory.CreateScope();
+            var messageService = scope.ServiceProvider.GetRequiredService<IMessageService>();
+            await messageService.Connect();
             var coop = scope.ServiceProvider.GetRequiredService<ICoop>();
+            coop.Load();
             coop.Initialize();
-            return Task.CompletedTask;
         }
     }
 }

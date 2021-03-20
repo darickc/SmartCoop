@@ -4,10 +4,31 @@
     <div class="bold">Temperature</div>
     <div>
         <MatTextField @bind-Value="@Device.Name" Label="Name" Required="true"></MatTextField>
-        <MatTextField @bind-Value="@Device.BusId" Label="Bus Id" Required="true"></MatTextField>
-        <MatTextField @bind-Value="@Device.DevId" Label="Dev Id" Required="true"></MatTextField>
-        <MatTextField @bind-Value="@Device.ReadFrequency" Label="Read Frequency" Required="true"></MatTextField>
-        
+        <MatTextField @bind-Value="@Device.ReadFrequency" Label="Read Frequency (seconds)" Required="true"></MatTextField>
+        <div>
+            Bus Id: @Device.OneWireDevice?.BusId
+            Dev Id: @Device.OneWireDevice?.DevId
+        </div>
+
+        @if (!Devices.Any() && !Loading)
+        {
+            <div>
+                There were no temperature sensors found.
+            </div> }
+        else
+        {
+            <div>
+                Available Devices:
+            </div>
+            foreach (var device in Devices)
+            {
+                <div>
+                    Bus Id: @device.BusId
+                    Dev Id: @device.DevId
+                    <MatButton OnClick="(()=> UseDevice(device))">Select</MatButton>
+                </div>
+            }
+        }
     </div>
 }
 else
