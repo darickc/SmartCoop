@@ -10,7 +10,7 @@ namespace SmartCoop.Core.Coop
     public interface ICoop : IDisposable, INotifyPropertyChanged
     {
         List<IDevice> Devices { get; set; }
-        void Initialize(IMessageService messageService = null);
+        Task Initialize(IMessageService messageService = null);
         Task Save();
         void Load();
     }

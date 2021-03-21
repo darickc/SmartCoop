@@ -29,7 +29,7 @@ namespace SmartCoop.Infrastructure.Coop
             }
         }
 
-        public void Initialize(IMessageService messageService = null)
+        public async Task Initialize(IMessageService messageService = null)
         {
             if (messageService != null)
             {
@@ -37,7 +37,7 @@ namespace SmartCoop.Infrastructure.Coop
             }
             foreach (var device in Devices)
             {
-                device.Initialize(_messageService);
+                await device.Initialize(_messageService);
             }
         }
 

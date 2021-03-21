@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using Newtonsoft.Json;
 using SmartCoop.Core.Sensors;
 using SmartCoop.Core.Services;
@@ -29,14 +30,14 @@ namespace SmartCoop.Infrastructure.Sensors
         {
         }
 
-        public void Initialize(IMessageService messageService)
+        public Task Initialize(IMessageService messageService)
         {
             _messageService = messageService;
+            return Task.CompletedTask;
         }
 
-        public void HandleMessage(string message)
+        public void HandleMessage(string message, string payload)
         {
-            throw new System.NotImplementedException();
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

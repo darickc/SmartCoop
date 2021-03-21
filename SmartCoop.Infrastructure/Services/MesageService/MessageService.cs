@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -83,10 +84,13 @@ namespace SmartCoop.Infrastructure.Services.MesageService
             var match = Regex.Match(e.ApplicationMessage.Topic, regEx);
             if (match.Groups.Count >= 3)
             {
+                var payload = e.ApplicationMessage.Payload?.Any() == true
+                    ? Encoding.UTF8.GetString(e.ApplicationMessage.Payload, 0, e.ApplicationMessage.Payload.Length)
+                    : null;
                 var deviceName = match.Groups[1].Value;
                 var message = match.Groups[2].Value;
                 var device = _coop.Devices.FirstOrDefault(d => d.Name == deviceName);
-                device?.HandleMessage(message);
+                device?.HandleMessage(message, payload);
             }
             return Task.CompletedTask;
         }
@@ -94,9 +98,10 @@ namespace SmartCoop.Infrastructure.Services.MesageService
         public void SendMessage(string topic, string payload)
         {
             _client.PublishAsync(new MqttApplicationMessageBuilder()
-                .WithTopic(topic)
+                .WithTopic($"{_config.MqttBaseTopic}/{topic}")
                 .WithPayload(payload)
                 .WithAtLeastOnceQoS()
+                .WithRetainFlag()
                 .Build());
         }
 

@@ -51,7 +51,7 @@ namespace SmartCoop.Infrastructure.Sensors
             _timer?.Dispose();
         }
 
-        public void Initialize(IMessageService messageService)
+        public async Task Initialize(IMessageService messageService)
         {
             _messageService = messageService;
             try
@@ -60,6 +60,7 @@ namespace SmartCoop.Infrastructure.Sensors
                 _timer = new Timer(TimeSpan.FromSeconds(ReadFrequency).TotalMilliseconds);
                 _timer.Elapsed += async (sender, args) => await GetTemperature();
                 _timer.Start();
+                await GetTemperature();
             }
             catch
             {
@@ -67,21 +68,20 @@ namespace SmartCoop.Infrastructure.Sensors
             }
         }
 
-        public void HandleMessage(string message)
+        public void HandleMessage(string message, string payload)
         {
-            throw new NotImplementedException();
+            
         }
 
         private async Task GetTemperature()
         {
-
             try
             {
                 var temp = await ReadTemperature();
                 if (Math.Abs(temp - Temp) > .1)
                 {
                     Temp = temp;
-                    // todo send notification
+                    _messageService.SendMessage($"{Name}", Temp.ToString("0.#"));
                 }
             }
             catch

@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Device.Gpio;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using Newtonsoft.Json;
 using SmartCoop.Core.Devices;
 using SmartCoop.Core.Services;
@@ -43,7 +44,7 @@ namespace SmartCoop.Infrastructure.Devices
         public int ClosedPinNumber { get; set; }
         public string Name { get; set; }
 
-        public void Initialize(IMessageService messageService)
+        public Task Initialize(IMessageService messageService)
         {
             _messageService = messageService;
             Dispose();
@@ -58,18 +59,23 @@ namespace SmartCoop.Infrastructure.Devices
             catch
             {
             }
+
+            return Task.CompletedTask;
         }
 
-        public void HandleMessage(string message)
+        public void HandleMessage(string message, string payload)
         {
-            switch (message)
+            if (message == "set")
             {
-                case "open":
-                    Open();
-                    break;
-                case "close":
-                    Close();
-                    break;
+                switch (payload?.ToLower())
+                {
+                    case "open":
+                        Open();
+                        break;
+                    case "close":
+                        Close();
+                        break;
+                }
             }
         }
 
@@ -78,23 +84,25 @@ namespace SmartCoop.Infrastructure.Devices
             if (pinvaluechangedeventargs.PinNumber == OpenPinNumber)
             {
                 IsOpen = pinvaluechangedeventargs.ChangeType == PinEventTypes.Rising;
-                _messageService.SendMessage(Name, "Opened");
+                _messageService.SendMessage($"{Name}/state", "open");
             }
             if (pinvaluechangedeventargs.PinNumber == ClosedPinNumber)
             {
                 IsClosed = pinvaluechangedeventargs.ChangeType == PinEventTypes.Rising;
-                _messageService.SendMessage(Name, "Closed");
+                _messageService.SendMessage($"{Name}/state", "closed");
             }
         }
 
         public void Open()
         {
             // todo start motor to go up
+            _messageService.SendMessage($"{Name}/state", "opening");
         }
 
         public void Close()
         {
             // todo  start motor to go down
+            _messageService.SendMessage($"{Name}/state", "closing");
         }
 
         public void Dispose()

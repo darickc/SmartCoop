@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using Newtonsoft.Json;
 using System.Timers;
 using Iot.Device.Hcsr04;
@@ -42,7 +43,7 @@ namespace SmartCoop.Infrastructure.Sensors
             _sonar?.Dispose();
         }
 
-        public void Initialize(IMessageService messageService)
+        public Task Initialize(IMessageService messageService)
         {
             _messageService = messageService;
             Dispose();
@@ -52,15 +53,16 @@ namespace SmartCoop.Infrastructure.Sensors
                 _timer = new Timer(TimeSpan.FromSeconds(ReadFrequency).TotalMilliseconds);
                 _timer.Elapsed += (sender, args) => GetPercent();
                 _timer.Start();
+                GetPercent();
             }
             catch
             {
             }
+            return Task.CompletedTask;
         }
 
-        public void HandleMessage(string message)
+        public void HandleMessage(string message, string payload)
         {
-            throw new NotImplementedException();
         }
 
         private void GetPercent()
@@ -71,7 +73,7 @@ namespace SmartCoop.Infrastructure.Sensors
             if (Percent != percent)
             {
                 Percent =  percent;
-                // notify changed.
+                _messageService.SendMessage($"{Name}", Percent.ToString("0.#"));
             }
         }
 

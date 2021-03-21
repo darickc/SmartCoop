@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Device.Gpio;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using Newtonsoft.Json;
 using SmartCoop.Core.Devices;
 using SmartCoop.Core.Services;
@@ -40,7 +41,7 @@ namespace SmartCoop.Infrastructure.Devices
 
         public int Pin { get; set; }
 
-        public void Initialize(IMessageService messageService)
+        public Task Initialize(IMessageService messageService)
         {
             _messageService = messageService;
             Dispose();
@@ -48,29 +49,40 @@ namespace SmartCoop.Infrastructure.Devices
             {
                 _gpioController = new GpioController();
                 _gpioController.OpenPin(Pin, PinMode.Output);
+                TurnOff();
             }
             catch 
             {
             }
+
+            return Task.CompletedTask;
         }
 
-        public void HandleMessage(string message)
+        public void HandleMessage(string message, string payload)
         {
-            throw new System.NotImplementedException();
+            switch (payload?.ToLower())
+            {
+                case "on":
+                    TurnOn();
+                    break;
+                case "off":
+                    TurnOff();
+                    break;
+            }
         }
 
         public void TurnOn()
         {
             _gpioController?.Write(Pin, PinValue.High);
             On = true;
-            // todo send notification
+            _messageService.SendMessage($"{Name}", "ON");
         }
 
         public void TurnOff()
         {
             _gpioController?.Write(Pin, PinValue.Low);
             On = false;
-            // todo send notification
+            _messageService.SendMessage($"{Name}", "OFF");
         }
 
         public void Dispose()
