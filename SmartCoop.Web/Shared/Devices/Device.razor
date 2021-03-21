@@ -3,10 +3,7 @@
 @using SmartCoop.Core.Sensors.Temperature
 <div class="device">
 
-    @if (!Editing)
-    {
-        <div class="bold">@Item.Name</div>
-    }
+   
     @if (Item is IDoor door)
     {
         <Door Device="door" Editing="Editing"></Door>

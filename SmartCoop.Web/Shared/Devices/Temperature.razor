@@ -33,6 +33,7 @@
 }
 else
 {
+    <div class="bold"><MatIcon Icon="ac_unit"></MatIcon> @Device.Name</div>
     <div>
         @Device.Temp&deg;@(Device.UnitType == TempType.Celcius ? "C" : "F")
     </div>

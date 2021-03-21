@@ -6,18 +6,20 @@ namespace SmartCoop.Web.Shared.Devices
 {
     public partial class Switch
     {
+        private bool _on;
         [Parameter] public ISwitch Device { get; set; }
         [Parameter] public bool Editing { get; set; }
-        
-        public void TurnOn()
-        {
-            Device.TurnOn();
-        }
 
-        public void TurnOff()
+        public bool On
         {
-            Device.TurnOff();
+            get => Device.On;
+            set
+            {
+                if (value)
+                    Device.TurnOn();
+                else
+                    Device.TurnOff();
+            }
         }
-        
     }
 }

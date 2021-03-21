@@ -8,9 +8,8 @@
 }
 else
 {
-    <div>Status: @(Device.On ? "On" : "Off")</div>
+    <div class="bold"><MatIcon Icon="toggle_off"></MatIcon> @Device.Name</div>
     <div>
-        <MatButton Raised="true" OnClick="TurnOn">On</MatButton>
-        <MatButton Raised="true" OnClick="TurnOff">Off</MatButton>
+        <MatSlideToggle @bind-Value="@On"></MatSlideToggle>
     </div>
 }
