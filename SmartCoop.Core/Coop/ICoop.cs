@@ -13,5 +13,6 @@ namespace SmartCoop.Core.Coop
         Task Initialize(IMessageService messageService = null);
         Task Save();
         void Load();
+        List<IDevice> CopyDevices();
     }
 }

@@ -16,7 +16,7 @@ namespace SmartCoop.Web.Pages
         [Inject] private IMapper Mapper { get; set; }
         [Inject] public ICoop Coop { get; set; }
         [Inject] public IEnumerable<IDevice> AvailaibleDevices { get; set; }
-        public ICoop TempCoop { get; set; }
+        public List<IDevice> Devices { get; set; }
         public bool DialogOpen { get; set; }
         public string DeviceType { get; set; }
 
@@ -34,16 +34,16 @@ namespace SmartCoop.Web.Pages
 
         public async Task Save()
         {
-            await TempCoop.Save();
             Coop.Dispose();
-            Coop.Devices = TempCoop.Devices;
-            Coop.Initialize();
+            Coop.Devices = Devices;
+            await Coop.Save();
+            await Coop.Initialize();
             Editing = false;
         }
 
         public void Edit()
         {
-            TempCoop = Mapper.Map<ICoop>(Coop);
+            Devices = Coop.CopyDevices();
             Editing = true;
         }
 
@@ -54,7 +54,7 @@ namespace SmartCoop.Web.Pages
 
         public void Remove(IDevice device)
         {
-            TempCoop.Devices.Remove(device);
+            Devices.Remove(device);
         }
 
         public void OpenAddDevice()
@@ -71,7 +71,7 @@ namespace SmartCoop.Web.Pages
                 if (t != null)
                 {
                     var device = Activator.CreateInstance(t);
-                    TempCoop.Devices.Add((IDevice)device);
+                    Devices.Add((IDevice)device);
                 }
             }
             DialogOpen = false;

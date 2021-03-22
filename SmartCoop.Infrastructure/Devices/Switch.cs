@@ -60,14 +60,17 @@ namespace SmartCoop.Infrastructure.Devices
 
         public void HandleMessage(string message, string payload)
         {
-            switch (payload?.ToLower())
+            if (message == "set")
             {
-                case "on":
-                    TurnOn();
-                    break;
-                case "off":
-                    TurnOff();
-                    break;
+                switch (payload?.ToLower())
+                {
+                    case "on":
+                        TurnOn();
+                        break;
+                    case "off":
+                        TurnOff();
+                        break;
+                }
             }
         }
 

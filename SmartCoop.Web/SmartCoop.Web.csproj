@@ -6,7 +6,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="LibSassBuilder" Version="1.6.2" />
     <PackageReference Include="MatBlazor" Version="2.8.0" />
   </ItemGroup>
 

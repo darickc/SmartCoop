@@ -7,7 +7,7 @@
 {
     <MatButton Raised="true" OnClick="OpenAddDevice">Add</MatButton>
 
-    @foreach (var device in TempCoop.Devices)
+    @foreach (var device in Devices)
     {
         <Device Item="device" Editing="Editing" OnRemove="Remove"></Device>
     }

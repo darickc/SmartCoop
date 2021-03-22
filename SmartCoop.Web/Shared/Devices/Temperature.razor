@@ -9,24 +9,26 @@
             Bus Id: @Device.OneWireDevice?.BusId
             Dev Id: @Device.OneWireDevice?.DevId
         </div>
-
-        @if (!Devices.Any() && !Loading)
+        @if (Devices != null)
         {
-            <div>
-                There were no temperature sensors found.
-            </div> }
-        else
-        {
-            <div>
-                Available Devices:
-            </div>
-            foreach (var device in Devices)
+            if (!Devices.Any())
             {
                 <div>
-                    Bus Id: @device.BusId
-                    Dev Id: @device.DevId
-                    <MatButton OnClick="(()=> UseDevice(device))">Select</MatButton>
+                    There were no temperature sensors found.
+                </div> }
+            else
+            {
+                <div>
+                    Available Devices:
                 </div>
+                foreach (var device in Devices)
+                {
+                    <div>
+                        Bus Id: @device.BusId
+                        Dev Id: @device.DevId
+                        <MatButton OnClick="(()=> UseDevice(device))">Select</MatButton>
+                    </div>
+                }
             }
         }
     </div>

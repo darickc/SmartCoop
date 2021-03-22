@@ -23,7 +23,7 @@ namespace SmartCoop.Web.Services
             await messageService.Connect();
             var coop = scope.ServiceProvider.GetRequiredService<ICoop>();
             coop.Load();
-            coop.Initialize();
+            await coop.Initialize(messageService);
         }
     }
 }

@@ -41,7 +41,6 @@ namespace SmartCoop.Infrastructure.Sensors
                     await bus.ScanForDeviceChangesAsync();
                     foreach (string devId in bus.EnumerateDeviceIds())
                     {
-                        OneWireDevice dev = new(busId, devId);
                         if (OneWireThermometerDevice.IsCompatible(busId, devId))
                         {
                             Devices.Add(new OneWire(busId, devId));

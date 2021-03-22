@@ -80,7 +80,7 @@ namespace SmartCoop.Infrastructure.Services.MesageService
 
         private Task Handler(MqttApplicationMessageReceivedEventArgs e)
         {
-            var regEx = $"{_config.MqttBaseTopic}/([^/]*)/(.*)";
+            var regEx = $"{_config.MqttBaseTopic}/([^/]*)/?(.*)";
             var match = Regex.Match(e.ApplicationMessage.Topic, regEx);
             if (match.Groups.Count >= 3)
             {
@@ -97,17 +97,18 @@ namespace SmartCoop.Infrastructure.Services.MesageService
 
         public void SendMessage(string topic, string payload)
         {
-            _client.PublishAsync(new MqttApplicationMessageBuilder()
+            var message = new MqttApplicationMessageBuilder()
                 .WithTopic($"{_config.MqttBaseTopic}/{topic}")
                 .WithPayload(payload)
                 .WithAtLeastOnceQoS()
                 .WithRetainFlag()
-                .Build());
+                .Build();
+            _client.PublishAsync(message);
         }
 
         public void Dispose()
         {
-            _client.Dispose();
+            _client?.Dispose();
         }
     }
 }
