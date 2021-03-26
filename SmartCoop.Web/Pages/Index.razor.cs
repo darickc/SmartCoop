@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Threading.Tasks;
@@ -43,12 +42,14 @@ namespace SmartCoop.Web.Pages
 
         public void Edit()
         {
+            Coop.Dispose();
             Devices = Coop.CopyDevices();
             Editing = true;
         }
 
-        public void Cancel()
+        public async Task Cancel()
         {
+            await Coop.Initialize();
             Editing = false;
         }
 

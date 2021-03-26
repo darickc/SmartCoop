@@ -5,6 +5,15 @@
         <MatTextField @bind-Value="@Device.Name" Label="Name" Required="true"></MatTextField>
         <MatTextField @bind-Value="@Device.TriggerPin" Label="Trigger Pin Number" Required="true" Type="number" min="1" max="30"></MatTextField>
         <MatTextField @bind-Value="@Device.EchoPin" Label="Echo Pin Number" Required="true" Type="number" min="1" max="30"></MatTextField>
+        <MatTextField @bind-Value="@Device.ReadFrequency" Label="Frequency (s)" Required="true" Type="number" min="1"></MatTextField>
+        
+        <div>
+            Low: @Device.LowValue
+            High: @Device.HighValue
+        </div>
+
+        <MatButton Raised="true" OnClick="Device.SetLow">Set Low Value</MatButton>
+        <MatButton Raised="true" OnClick="Device.SetHigh">Set High Value</MatButton>
     </div>
 }
 else

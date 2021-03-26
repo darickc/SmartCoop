@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Device.Gpio;
 using System.IO;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -19,6 +20,7 @@ namespace SmartCoop.Infrastructure.Coop
         private List<IDevice> _devices = new();
         private IMessageService _messageService;
         private ILogger _logger;
+        private SemaphoreSlim _semiphore = new(1,1);
 
         public Coop(ILogger<Coop> logger)
         {
@@ -56,11 +58,20 @@ namespace SmartCoop.Infrastructure.Coop
             if (messageService != null)
             {
                 _messageService = messageService;
+                _messageService.OnMessage += MessageService_OnMessage;
             }
             foreach (var device in Devices)
             {
                 await device.Initialize(_messageService);
             }
+        }
+
+        private async void MessageService_OnMessage(object sender, System.EventArgs e)
+        {
+            // save state changes in case of power loss
+            await _semiphore.WaitAsync();
+            await Save();
+            _semiphore.Release();
         }
 
         public async Task Save()

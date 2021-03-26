@@ -9,6 +9,7 @@ using MQTTnet.Client.Options;
 using MQTTnet.Extensions.ManagedClient;
 using MQTTnet.Protocol;
 using SmartCoop.Core.Coop;
+using SmartCoop.Core.Devices;
 using SmartCoop.Core.Services;
 
 namespace SmartCoop.Infrastructure.Services.MesageService
@@ -20,6 +21,8 @@ namespace SmartCoop.Infrastructure.Services.MesageService
         private readonly ILogger _logger;
         private readonly string _clientId = Guid.NewGuid().ToString();
         private IManagedMqttClient _client;
+
+        public event EventHandler OnMessage;
 
         public MessageService(IMessageServiceConfig config, ICoop coop, ILogger<MessageService> logger)
         {
@@ -95,7 +98,7 @@ namespace SmartCoop.Infrastructure.Services.MesageService
             return Task.CompletedTask;
         }
 
-        public void SendMessage(string topic, string payload)
+        public void SendMessage(string topic, string payload, IDevice device = null)
         {
             var message = new MqttApplicationMessageBuilder()
                 .WithTopic($"{_config.MqttBaseTopic}/{topic}")
@@ -104,6 +107,11 @@ namespace SmartCoop.Infrastructure.Services.MesageService
                 .WithRetainFlag()
                 .Build();
             _client.PublishAsync(message);
+
+            if (device != null)
+            {
+                OnMessage?.Invoke(device, new EventArgs());
+            }
         }
 
         public void Dispose()

@@ -11,15 +11,10 @@ else
 {
     <div class="bold"><MatIcon Icon="meeting_room"></MatIcon> @Device.Name</div>
     <div>
-        Open:
-        @Device.IsOpen
+        Status:
+        @Device.State
     </div>
     <div>
-        Closed:
-        @Device.IsClosed
-    </div>
-    <div>
-        <MatButton Raised="true" OnClick="Open">Open</MatButton>
-        <MatButton Raised="true" OnClick="Close">Close</MatButton>
+        <MatButton Raised="true" OnClick="Toggle">Toggle</MatButton>
     </div>
 }

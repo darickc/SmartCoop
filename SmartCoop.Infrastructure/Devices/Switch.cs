@@ -27,11 +27,10 @@ namespace SmartCoop.Infrastructure.Devices
             }
         }
 
-        [JsonIgnore]
         public bool On
         {
             get => _on;
-            private set
+            set
             {
                 if (value == _on) return;
                 _on = value;
@@ -49,7 +48,15 @@ namespace SmartCoop.Infrastructure.Devices
             {
                 _gpioController = new GpioController();
                 _gpioController.OpenPin(Pin, PinMode.Output);
-                TurnOff();
+
+                if (On)
+                {
+                    TurnOn();
+                }
+                else
+                {
+                    TurnOff();
+                }
             }
             catch 
             {
@@ -76,21 +83,24 @@ namespace SmartCoop.Infrastructure.Devices
 
         public void TurnOn()
         {
-            _gpioController?.Write(Pin, PinValue.High);
+            _gpioController?.Write(Pin, PinValue.Low);
             On = true;
-            _messageService.SendMessage($"{Name}", "ON");
+            _messageService.SendMessage($"{Name}", "ON", this);
         }
 
         public void TurnOff()
         {
-            _gpioController?.Write(Pin, PinValue.Low);
+            _gpioController?.Write(Pin, PinValue.High);
             On = false;
-            _messageService.SendMessage($"{Name}", "OFF");
+            _messageService.SendMessage($"{Name}", "OFF", this);
         }
 
         public void Dispose()
         {
-            _gpioController?.ClosePin(Pin);
+            if (_gpioController?.IsPinOpen(Pin) == true)
+            {
+                _gpioController?.ClosePin(Pin);
+            }
             _gpioController?.Dispose();
         }
 

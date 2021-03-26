@@ -34,8 +34,8 @@ namespace SmartCoop.Infrastructure.Sensors
         public int TriggerPin { get; set; }
         public int EchoPin { get; set; }
         public int ReadFrequency { get; set; } = 10;
-        public double LowValue { get; private set; }
-        public double HighValue { get; private set; }
+        public double LowValue { get; set; }
+        public double HighValue { get; set; }
 
         public void Dispose()
         {
@@ -46,6 +46,12 @@ namespace SmartCoop.Infrastructure.Sensors
         public Task Initialize(IMessageService messageService)
         {
             _messageService = messageService;
+            Initialize();
+            return Task.CompletedTask;
+        }
+
+        private void Initialize()
+        {
             Dispose();
             try
             {
@@ -58,7 +64,6 @@ namespace SmartCoop.Infrastructure.Sensors
             catch
             {
             }
-            return Task.CompletedTask;
         }
 
         public void HandleMessage(string message, string payload)
@@ -88,9 +93,14 @@ namespace SmartCoop.Infrastructure.Sensors
 
         private double GetDistance()
         {
-            if (_sonar.TryGetDistance(out var distance))
+            var count = 0;
+            while (count < 4)
             {
-                return distance.Centimeters;
+                if (_sonar.TryGetDistance(out var distance))
+                {
+                    return Math.Round(distance.Centimeters, 2) ;
+                }
+                count++;
             }
 
             return 0;
@@ -98,14 +108,16 @@ namespace SmartCoop.Infrastructure.Sensors
 
         public void SetLow()
         {
-            var distance = GetAvgDistance();
-            LowValue = distance;
+            Initialize();
+            LowValue = GetAvgDistance(); ;
+            Dispose();
         }
 
         public void SetHigh()
         {
-            var distance = GetAvgDistance();
-            HighValue = distance;
+            Initialize();
+            HighValue = GetAvgDistance();
+            Dispose();
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

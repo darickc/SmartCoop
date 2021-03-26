@@ -8,15 +8,9 @@ namespace SmartCoop.Web.Shared.Devices
         [Parameter] public IDoor Device { get; set; }
         [Parameter] public bool Editing { get; set; }
         
-        public void Open()
+        public void Toggle()
         {
-            Device.Open();
+            Device.Toggle();
         }
-
-        public void Close()
-        {
-            Device.Close();
-        }
-
     }
 }

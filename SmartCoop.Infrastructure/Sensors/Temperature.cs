@@ -78,6 +78,7 @@ namespace SmartCoop.Infrastructure.Sensors
             try
             {
                 var temp = await ReadTemperature();
+                temp = Math.Round(temp, 1);
                 if (Math.Abs(temp - Temp) > .1)
                 {
                     Temp = temp;

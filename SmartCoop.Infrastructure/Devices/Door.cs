@@ -13,35 +13,23 @@ namespace SmartCoop.Infrastructure.Devices
     {
         private GpioController _gpioController;
         private IMessageService _messageService;
-        private bool _isOpen;
-        private bool _isClosed;
+        private DoorState _state;
 
-        [JsonIgnore]
-        public bool IsOpen
+        public DoorState State
         {
-            get => _isOpen;
-            private set
+            get => _state;
+            set
             {
-                if (value.Equals(_isOpen)) return;
-                _isOpen = value;
-                OnPropertyChanged();
-            }
-        }
-
-        [JsonIgnore]
-        public bool IsClosed
-        {
-            get => _isClosed;
-            private set
-            {
-                if (value.Equals(_isClosed)) return;
-                _isClosed = value;
+                if (value == _state) return;
+                _state = value;
                 OnPropertyChanged();
             }
         }
 
         public int OpenPinNumber { get; set; }
         public int ClosedPinNumber { get; set; }
+        public int Pin1 { get; set; }
+        public int Pin2 { get; set; }
         public string Name { get; set; }
 
         public Task Initialize(IMessageService messageService)
@@ -51,10 +39,28 @@ namespace SmartCoop.Infrastructure.Devices
             try
             {
                 _gpioController = new GpioController();
-                _gpioController.OpenPin(OpenPinNumber, PinMode.InputPullDown);
-                _gpioController.OpenPin(ClosedPinNumber, PinMode.InputPullDown);
+                _gpioController.OpenPin(OpenPinNumber, PinMode.InputPullUp);
+                _gpioController.OpenPin(ClosedPinNumber, PinMode.InputPullUp);
                 _gpioController.RegisterCallbackForPinValueChangedEvent(OpenPinNumber, PinEventTypes.Falling & PinEventTypes.Rising, Callback);
                 _gpioController.RegisterCallbackForPinValueChangedEvent(ClosedPinNumber, PinEventTypes.Falling & PinEventTypes.Rising, Callback);
+
+                // check what the status was last and make sure it is still in that state
+                var openPinState = _gpioController.Read(OpenPinNumber);
+                var closedPinState = _gpioController.Read(ClosedPinNumber);
+
+                // should be closed but it is not, so close it
+                if (State == DoorState.Closed || State == DoorState.Closing && closedPinState == PinValue.Low)
+                {
+                    State = DoorState.Open;
+                    Close();
+                }
+
+                // should be open but it is not, so open it
+                if (State == DoorState.Open || State == DoorState.Opening && openPinState == PinValue.Low)
+                {
+                    State = DoorState.Closed;
+                    Open();
+                }
             }
             catch
             {
@@ -75,40 +81,83 @@ namespace SmartCoop.Infrastructure.Devices
                     case "close":
                         Close();
                         break;
+                    case "toggle":
+                        Toggle();
+                        break;
                 }
             }
         }
 
         private void Callback(object sender, PinValueChangedEventArgs pinvaluechangedeventargs)
         {
-            if (pinvaluechangedeventargs.PinNumber == OpenPinNumber)
+            if (pinvaluechangedeventargs.ChangeType == PinEventTypes.Rising)
             {
-                IsOpen = pinvaluechangedeventargs.ChangeType == PinEventTypes.Rising;
-                _messageService.SendMessage($"{Name}/state", "open");
-            }
-            if (pinvaluechangedeventargs.PinNumber == ClosedPinNumber)
-            {
-                IsClosed = pinvaluechangedeventargs.ChangeType == PinEventTypes.Rising;
-                _messageService.SendMessage($"{Name}/state", "closed");
+                if (pinvaluechangedeventargs.PinNumber == OpenPinNumber)
+                {
+                    Stop();
+                    State = DoorState.Open;
+                    _messageService.SendMessage($"{Name}/state", "open", this);
+                }
+
+                if (pinvaluechangedeventargs.PinNumber == ClosedPinNumber)
+                {
+                    Stop();
+                    State = DoorState.Closed;
+                    _messageService.SendMessage($"{Name}/state", "closed", this);
+                }
             }
         }
 
         public void Open()
         {
-            // todo start motor to go up
-            _messageService.SendMessage($"{Name}/state", "opening");
+            if (State != DoorState.Open && State != DoorState.Opening)
+            {
+                State = DoorState.Opening;
+                _gpioController?.Write(Pin1, PinValue.High);
+                _gpioController?.Write(Pin2, PinValue.Low);
+                _messageService.SendMessage($"{Name}/state", "opening", this);
+            }
         }
 
         public void Close()
         {
-            // todo  start motor to go down
-            _messageService.SendMessage($"{Name}/state", "closing");
+            if (State != DoorState.Closed && State != DoorState.Closing)
+            {
+                State = DoorState.Closing;
+                _gpioController?.Write(Pin1, PinValue.Low);
+                _gpioController?.Write(Pin2, PinValue.High);
+                _messageService.SendMessage($"{Name}/state", "closing", this);
+            }
+        }
+
+        public void Toggle()
+        {
+            if (State == DoorState.Open || State == DoorState.Opening)
+            {
+                Close();
+            }
+            else
+            {
+                Open();
+            }
+        }
+
+        private void Stop()
+        {
+            _gpioController?.Write(Pin1, PinValue.Low);
+            _gpioController?.Write(Pin2, PinValue.Low);
         }
 
         public void Dispose()
         {
-            _gpioController?.ClosePin(OpenPinNumber);
-            _gpioController?.ClosePin(ClosedPinNumber);
+            if (_gpioController?.IsPinOpen(OpenPinNumber) == true)
+            {
+                _gpioController?.ClosePin(OpenPinNumber);
+            }
+            if (_gpioController?.IsPinOpen(ClosedPinNumber) == true)
+            {
+                _gpioController?.ClosePin(ClosedPinNumber);
+            }
             _gpioController?.Dispose();
         }
 
