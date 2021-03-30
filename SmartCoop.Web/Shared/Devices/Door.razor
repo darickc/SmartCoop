@@ -5,6 +5,8 @@
         <MatTextField @bind-Value="@Device.Name" Label="Name" Required="true"></MatTextField>
         <MatTextField @bind-Value="@Device.OpenPinNumber" Label="Open Pin Number" Required="true" Type="number" min="1" max="30"></MatTextField>
         <MatTextField @bind-Value="@Device.ClosedPinNumber" Label="Closed Pin Number" Required="true" Type="number" min="1" max="30"></MatTextField>
+        <MatTextField @bind-Value="@Device.Pin1" Label="Motor Pin 1" Required="true" Type="number" min="1" max="30"></MatTextField>
+        <MatTextField @bind-Value="@Device.Pin2" Label="Motor Pin 2" Required="true" Type="number" min="1" max="30"></MatTextField>
     </div>
 }
 else

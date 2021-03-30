@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using System.Device.Gpio;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
@@ -14,6 +15,7 @@ namespace SmartCoop.Infrastructure.Devices
         private GpioController _gpioController;
         private IMessageService _messageService;
         private DoorState _state;
+        private int x;
 
         public DoorState State
         {
@@ -41,8 +43,10 @@ namespace SmartCoop.Infrastructure.Devices
                 _gpioController = new GpioController();
                 _gpioController.OpenPin(OpenPinNumber, PinMode.InputPullUp);
                 _gpioController.OpenPin(ClosedPinNumber, PinMode.InputPullUp);
-                _gpioController.RegisterCallbackForPinValueChangedEvent(OpenPinNumber, PinEventTypes.Falling & PinEventTypes.Rising, Callback);
-                _gpioController.RegisterCallbackForPinValueChangedEvent(ClosedPinNumber, PinEventTypes.Falling & PinEventTypes.Rising, Callback);
+                _gpioController.OpenPin(Pin1, PinMode.Output);
+                _gpioController.OpenPin(Pin2, PinMode.Output);
+                _gpioController.RegisterCallbackForPinValueChangedEvent(OpenPinNumber, PinEventTypes.Falling, Callback);
+                _gpioController.RegisterCallbackForPinValueChangedEvent(ClosedPinNumber, PinEventTypes.Falling, Callback);
 
                 // check what the status was last and make sure it is still in that state
                 var openPinState = _gpioController.Read(OpenPinNumber);
@@ -90,16 +94,16 @@ namespace SmartCoop.Infrastructure.Devices
 
         private void Callback(object sender, PinValueChangedEventArgs pinvaluechangedeventargs)
         {
-            if (pinvaluechangedeventargs.ChangeType == PinEventTypes.Rising)
+            if (pinvaluechangedeventargs.ChangeType == PinEventTypes.Falling)
             {
-                if (pinvaluechangedeventargs.PinNumber == OpenPinNumber)
+                if (pinvaluechangedeventargs.PinNumber == OpenPinNumber && State == DoorState.Opening)
                 {
                     Stop();
                     State = DoorState.Open;
                     _messageService.SendMessage($"{Name}/state", "open", this);
                 }
 
-                if (pinvaluechangedeventargs.PinNumber == ClosedPinNumber)
+                if (pinvaluechangedeventargs.PinNumber == ClosedPinNumber && State == DoorState.Closing)
                 {
                     Stop();
                     State = DoorState.Closed;
@@ -152,12 +156,23 @@ namespace SmartCoop.Infrastructure.Devices
         {
             if (_gpioController?.IsPinOpen(OpenPinNumber) == true)
             {
+                _gpioController?.UnregisterCallbackForPinValueChangedEvent(OpenPinNumber, Callback);
                 _gpioController?.ClosePin(OpenPinNumber);
             }
             if (_gpioController?.IsPinOpen(ClosedPinNumber) == true)
             {
+                _gpioController?.UnregisterCallbackForPinValueChangedEvent(ClosedPinNumber, Callback);
                 _gpioController?.ClosePin(ClosedPinNumber);
             }
+            if (_gpioController?.IsPinOpen(Pin1) == true)
+            {
+                _gpioController?.ClosePin(Pin1);
+            }
+            if (_gpioController?.IsPinOpen(Pin2) == true)
+            {
+                _gpioController?.ClosePin(Pin2);
+            }
+            
             _gpioController?.Dispose();
         }
 
