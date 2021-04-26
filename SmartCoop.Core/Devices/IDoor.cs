@@ -1,4 +1,4 @@
-﻿using SmartCoop.Core.Sensors;
+﻿using System;
 
 namespace SmartCoop.Core.Devices
 {
@@ -9,6 +9,7 @@ namespace SmartCoop.Core.Devices
         int ClosedPinNumber { get; set; }
         int Pin1 { get; set; }
         int Pin2 { get; set; }
+        int Timeout { get; set; }
         void Open();
         void Close();
         void Toggle();

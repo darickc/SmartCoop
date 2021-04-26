@@ -1,9 +1,8 @@
-﻿using System;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Device.Gpio;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
+using System.Timers;
 using SmartCoop.Core.Devices;
 using SmartCoop.Core.Services;
 using SmartCoop.Infrastructure.Annotations;
@@ -15,7 +14,7 @@ namespace SmartCoop.Infrastructure.Devices
         private GpioController _gpioController;
         private IMessageService _messageService;
         private DoorState _state;
-        private int x;
+        private Timer _timer;
 
         public DoorState State
         {
@@ -32,8 +31,9 @@ namespace SmartCoop.Infrastructure.Devices
         public int ClosedPinNumber { get; set; }
         public int Pin1 { get; set; }
         public int Pin2 { get; set; }
+        public int Timeout { get; set; } = 45;
         public string Name { get; set; }
-
+        
         public Task Initialize(IMessageService messageService)
         {
             _messageService = messageService;
@@ -65,12 +65,21 @@ namespace SmartCoop.Infrastructure.Devices
                     State = DoorState.Closed;
                     Open();
                 }
+
+                _timer = new Timer(Timeout * 1000);
+                _timer.Elapsed += Timer_Elapsed;
             }
             catch
             {
             }
 
             return Task.CompletedTask;
+        }
+
+        private void Timer_Elapsed(object sender, ElapsedEventArgs e)
+        {
+            Stop();
+            _messageService.SendMessage($"{Name}/state", "error", this);
         }
 
         public void HandleMessage(string message, string payload)
@@ -120,6 +129,10 @@ namespace SmartCoop.Infrastructure.Devices
                 _gpioController?.Write(Pin1, PinValue.High);
                 _gpioController?.Write(Pin2, PinValue.Low);
                 _messageService.SendMessage($"{Name}/state", "opening", this);
+                if (Timeout > 0)
+                {
+                    _timer.Start();
+                }
             }
         }
 
@@ -131,6 +144,10 @@ namespace SmartCoop.Infrastructure.Devices
                 _gpioController?.Write(Pin1, PinValue.Low);
                 _gpioController?.Write(Pin2, PinValue.High);
                 _messageService.SendMessage($"{Name}/state", "closing", this);
+                if (Timeout > 0)
+                {
+                    _timer.Start();
+                }
             }
         }
 
@@ -150,6 +167,7 @@ namespace SmartCoop.Infrastructure.Devices
         {
             _gpioController?.Write(Pin1, PinValue.Low);
             _gpioController?.Write(Pin2, PinValue.Low);
+            _timer.Stop();
         }
 
         public void Dispose()
@@ -174,6 +192,7 @@ namespace SmartCoop.Infrastructure.Devices
             }
             
             _gpioController?.Dispose();
+            _timer?.Dispose();
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
